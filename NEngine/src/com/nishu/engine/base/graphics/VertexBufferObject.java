@@ -62,8 +62,14 @@ public class VertexBufferObject {
 		}
 	}
 	
-	public static void diposeBuffer(int id){
-		GLdiposeBuffer(id);
+	public static void disposeBuffer(int id){
+		GLdisposeBuffer(id);
+	}
+	
+	public static void diposeBuffer(int... id){
+		for(int i = 0; i < id.length; i++){
+			disposeBuffer(id[i]);
+		}
 	}
 
 }

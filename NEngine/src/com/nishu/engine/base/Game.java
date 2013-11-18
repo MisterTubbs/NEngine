@@ -1,6 +1,7 @@
 package com.nishu.engine.base;
 
 import com.nishu.engine.base.interfaces.ScreenObject;
+import com.nishu.engine.base.resources.ResourceManager;
 import com.nishu.engine.base.screens.Screen;
 import com.nishu.engine.base.utilites.Time;
 
@@ -11,12 +12,21 @@ public class Game implements ScreenObject{
 	public static boolean debug = true;
 	
 	private Screen currentScreen;
+	private static ResourceManager rm;
 	
 	public Game(String title, int width, int height, int targetFPS, boolean mouseCaptured){
 		Window.createWindow(width, height, title, mouseCaptured);
 		this.width = width;
 		this.height = height;
 		this.targetFPS = targetFPS;
+		
+		init();
+	}
+	
+	@Override
+	public void init() {
+		rm = new ResourceManager();
+		rm.loadShaderProgram("Default_Shader", "/default_shader.vert", "/default_shader.frag");
 	}
 	
 	public void start(){
@@ -108,10 +118,6 @@ public class Game implements ScreenObject{
 	}
 
 	@Override
-	public void init() {
-	}
-
-	@Override
 	public void initGL() {
 	}
 
@@ -129,6 +135,10 @@ public class Game implements ScreenObject{
 
 	public void setHeight(int height) {
 		this.height = height;
+	}
+
+	public static ResourceManager getRm() {
+		return rm;
 	}
 
 }

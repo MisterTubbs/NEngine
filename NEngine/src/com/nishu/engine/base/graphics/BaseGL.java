@@ -1,17 +1,14 @@
 package com.nishu.engine.base.graphics;
 
-import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
-import static org.lwjgl.opengl.GL11.glClear;
-import static org.lwjgl.opengl.GL11.glClearColor;
-import static org.lwjgl.opengl.GL11.glDisableClientState;
-import static org.lwjgl.opengl.GL11.glDrawArrays;
-import static org.lwjgl.opengl.GL11.glEnableClientState;
-import static org.lwjgl.opengl.GL11.glVertexPointer;
+import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL15.*;
 
 import java.nio.FloatBuffer;
 
 public class BaseGL {
+	
+	public static int GL_TRIANGLES;
+	public static int GL_VERTEX_ARRAY, GL_COLOR_ARRAY, GL_TEXTURE_COORD_ARRAY, VERTEX_ARRAY_POINTER, COLOR_ARRAY_POINTER, GL_TEXTURE_COORD_ARRAY_POINTER;
 	
 	public static void clearScreen(){
 		glClear(GL_COLOR_BUFFER_BIT);
@@ -50,7 +47,15 @@ public class BaseGL {
 		glDisableClientState(clientState);
 	}
 	
-	public static void GLdiposeBuffer(int id){
+	public static void GLdisposeBuffer(int id){
 		glDeleteBuffers(id);
+	}
+	
+	public static void GLenableTexture(){
+		glEnable(GL_TEXTURE_2D);
+	}
+	
+	public static void GLdisableTexture(){
+		glDisable(GL_TEXTURE_2D);
 	}
 }
