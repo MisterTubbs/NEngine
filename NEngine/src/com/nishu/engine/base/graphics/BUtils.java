@@ -6,7 +6,7 @@ import org.lwjgl.BufferUtils;
 
 import static com.nishu.engine.base.graphics.BaseGL.*;
 
-public class VertexBufferObject {
+public class BUtils {
 	
 	public static FloatBuffer createFloatBuffer(int dimensions, int numCoords){
 		FloatBuffer buffer = BufferUtils.createFloatBuffer(dimensions * numCoords); 
@@ -34,32 +34,20 @@ public class VertexBufferObject {
 		GLbufferData(target, data, usage);
 	}
 	
-	public static void vertexPointer(int size, int type, int stride, long pointer_buffer_offset){
-		GLvertexPointer(size, type, stride, pointer_buffer_offset);
+	public static void pointer(int type, int size, FloatBuffer data){
+		GLpointer(size, type, data);
 	}
 	
-	public static void enableStates(int... states){
-		if(states.length > 1){
-			for(int i = 0; i < states.length; i++){
-				GLenableClientState(states[i]);
-			}
-		}else{
-			GLenableClientState(states[0]);
-		}
+	public static void enableState(int state){
+			GLenableClientState(state);
 	}
 	
 	public static void drawArrays(int mode, int first, int count){
 		GLdrawArrays(mode, first, count);
 	}
 	
-	public static void disableStates(int... states){
-		if(states.length > 1){
-			for(int i = 0; i < states.length; i++){
-				GLdisableClientState(states[i]);
-			}
-		}else{
-			GLdisableClientState(states[0]);
-		}
+	public static void disableState(int state){
+		GLdisableClientState(state);
 	}
 	
 	public static void disposeBuffer(int id){

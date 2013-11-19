@@ -8,9 +8,34 @@ import java.nio.FloatBuffer;
 public class BaseGL {
 	
 	public static int GL_TRIANGLES;
-	public static int GL_VERTEX_ARRAY, GL_COLOR_ARRAY, GL_TEXTURE_COORD_ARRAY, VERTEX_ARRAY_POINTER, COLOR_ARRAY_POINTER, GL_TEXTURE_COORD_ARRAY_POINTER;
+	public static int GL_VERTEX_ARRAY, GL_COLOR_ARRAY, GL_TEXTURE_COORD_ARRAY, VERTEX_ARRAY_POINTER, COLOR_ARRAY_POINTER, TEXTURE_COORD_ARRAY_POINTER;
+	public static int PROJECTION_MATRIX, MODELVIEW_MATRIX;
 	
-	public static void clearScreen(){
+	public static void GLmatrixMode(int mode){
+		glMatrixMode(mode);
+	}
+	
+	public static void GLloadIdentity(){
+		glLoadIdentity();
+	}
+	
+	public static void GLpushMatrix(){
+		glPushMatrix();
+	}
+	
+	public static void GLpopMatrix(){
+		glPopMatrix();
+	}
+	
+	public static void GLortho(double left, double right, double bottom, double top, double zNear, double zFar){
+		glOrtho(left, right, bottom, top, zNear, zFar);
+	}
+	
+	public static void GLviewport(int x, int y, int width, int height){
+		glViewport(x, y, width, height);
+	}
+	
+	public static void GLclearScreen(){
 		glClear(GL_COLOR_BUFFER_BIT);
 	}
 	
@@ -31,8 +56,10 @@ public class BaseGL {
 		glBufferData(target, data, usage);
 	}
 	
-	public static void GLvertexPointer(int size, int type, int stride, long pointer_buffer_offset){
-		glVertexPointer(size, type, stride, pointer_buffer_offset);
+	public static void GLpointer(int size, int type, FloatBuffer data) {
+		if(type == VERTEX_ARRAY_POINTER) glVertexPointer(size, 0, data);
+		if(type == COLOR_ARRAY_POINTER) glColorPointer(size, 0, data);
+		if(type == TEXTURE_COORD_ARRAY_POINTER) glTexCoordPointer(size, 0, data);
 	}
 	
 	public static void GLenableClientState(int clientState){

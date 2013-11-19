@@ -21,6 +21,10 @@ public class Texture {
 		this.width = width;
 		this.height = height;
 	}
+	
+	public static Texture createEmptyTexture(){
+		return new Texture(0, 0, 0);
+	}
 
 	public static Texture loadTexture(String name) {
 		// Load the image
@@ -80,5 +84,13 @@ public class Texture {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		
 		glBindTexture(GL_TEXTURE_2D, id);
+	}
+	
+	public void unbind(){
+		glBindTexture(GL_TEXTURE_2D, 0);
+	}
+	
+	public void delete(){
+		glDeleteTextures(id);
 	}
 }

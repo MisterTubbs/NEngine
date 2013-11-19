@@ -1,5 +1,9 @@
 package com.nishu.engine.base;
 
+import static com.nishu.engine.base.graphics.BaseGL.*;
+
+import org.lwjgl.opengl.Display;
+
 import com.nishu.engine.base.interfaces.ScreenObject;
 import com.nishu.engine.base.resources.ResourceManager;
 import com.nishu.engine.base.screens.Screen;
@@ -19,8 +23,20 @@ public class Game implements ScreenObject{
 		this.width = width;
 		this.height = height;
 		this.targetFPS = targetFPS;
-		
+
+		initGL();
 		init();
+	}
+	
+
+	@Override
+	public void initGL() {
+		GLmatrixMode(PROJECTION_MATRIX);
+		GLloadIdentity();
+		
+		GLmatrixMode(MODELVIEW_MATRIX);
+		GLortho(0, width, height, 0, 1, -1);
+		GLviewport(0, 0, Display.getWidth(), Display.getHeight());
 	}
 	
 	@Override
@@ -115,10 +131,6 @@ public class Game implements ScreenObject{
 		if(currentScreen != null){
 			currentScreen.dispose();
 		}
-	}
-
-	@Override
-	public void initGL() {
 	}
 
 	public int getWidth() {

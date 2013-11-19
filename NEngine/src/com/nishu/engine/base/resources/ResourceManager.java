@@ -33,4 +33,8 @@ public class ResourceManager {
 		return shaderPrograms.get("Defualt_Shader");
 	}
 	
+	public ShaderProgram getShaderProgram(String name){
+		return shaderPrograms.get(name);
+	}
+	
 }
