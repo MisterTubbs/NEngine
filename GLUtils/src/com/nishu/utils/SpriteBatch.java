@@ -1,16 +1,17 @@
 package com.nishu.utils;
 
+import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL15.*;
+import static org.lwjgl.opengl.GL20.*;
+
 import java.nio.FloatBuffer;
 
 import org.lwjgl.BufferUtils;
 
-import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL15.*;
-
 public class SpriteBatch {
 
-	public static int TYPE_DYNAMIC;
-	public static int TYPE_STATIC;
+	public static int TYPE_DYNAMIC = 0;
+	public static int TYPE_STATIC = 1;
 
 	private FloatBuffer vertices, colorVertices, textureVertices;
 
@@ -18,11 +19,11 @@ public class SpriteBatch {
 	private Texture currentTexture, defaultTexture = Texture.createEmptyTexture();
 	private Color4f currentColor, defaultColor = Color4f.DEFAULT;
 
-	private int type, size, currentSize, vID, cID, tID;
+	private int type, size, currentSize, vID, cID, tID, shaderProgram;
 	private boolean render2D, active;
 
 	public SpriteBatch() {
-		this(TYPE_STATIC, 10000, true);
+		this(TYPE_STATIC, 100000, true);
 	}
 
 	public SpriteBatch(int type, int size, boolean render2D) {
@@ -80,18 +81,19 @@ public class SpriteBatch {
 		if (type == TYPE_DYNAMIC)
 			renderDynamic();
 
-		glDrawElements(GL_TRIANGLES, vertices.remaining() + colorVertices.remaining() + textureVertices.remaining(), GL_UNSIGNED_INT, 0);
-
+		glDrawArrays(GL_TRIANGLES, 0, vertices.remaining() + colorVertices.remaining() + textureVertices.remaining());
+		
 		glDisableClientState(GL_VERTEX_ARRAY);
 		glDisableClientState(GL_COLOR_ARRAY);
 		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	}
 
 	private void renderStatic() {
-		glBindBuffer(GL_ARRAY_BUFFER, vID);
 		if (render2D) {
+			glBindBuffer(GL_ARRAY_BUFFER, vID);
 			glVertexPointer(2, GL_FLOAT, 0, 0);
 		} else if (!render2D) {
+			glBindBuffer(GL_ARRAY_BUFFER, vID);
 			glVertexPointer(3, GL_FLOAT, 0, 0);
 		}
 
@@ -103,9 +105,10 @@ public class SpriteBatch {
 	}
 
 	private void renderDynamic() {
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		if (render2D) {
 			glVertexPointer(2, 0, vertices);
-		}else if(!render2D){
+		} else if (!render2D) {
 			glVertexPointer(3, 0, vertices);
 		}
 		glColorPointer(4, 0, colorVertices);
@@ -128,10 +131,147 @@ public class SpriteBatch {
 
 		active = false;
 	}
-	
-	public void dispose(){
+
+	public void useShader() {
+		if (currentShader != null)
+			glUseProgram(shaderProgram);
+	}
+
+	// not recommended to use shaders this way. Should first add the shader to
+	// the batcher and then call batcher.useShader()
+	public void useShader(ShaderProgram program) {
+		program.use();
+	}
+
+	// not recommended to use shaders this way. Should first add the shader to
+	// the batcher and then call batcher.useShader()
+	public void useShader(ResourceManager rm, String name) {
+		rm.loadShaderProgram(name).use();
+	}
+
+	public void releaseShader() {
+		glUseProgram(0);
+	}
+
+	public void addShader(String vLoc, String fLoc) {
+		Shader temp = new Shader(vLoc, fLoc);
+		ShaderProgram tempProgram = new ShaderProgram(temp.getvShader(), temp.getfShader());
+		if (currentShader != null) {
+			currentShader.release();
+			currentShader.dispose();
+		}
+		currentShader = tempProgram;
+	}
+
+	public void addShader(ShaderProgram shader) {
+		if (currentShader != null) {
+			currentShader.release();
+			currentShader.dispose();
+		}
+		currentShader = shader;
+	}
+
+	public void addShader(ResourceManager rm, String name) {
+		if (currentShader != null) {
+			currentShader.release();
+			currentShader.dispose();
+		}
+		currentShader = rm.loadShaderProgram(name);
+	}
+
+	public void putData(float x, float y) {
+		putData(x, y, 0, defaultColor.r, defaultColor.g, defaultColor.b, defaultColor.a, 0, 0);
+	}
+
+	public void putData(float x, float y, float z) {
+		putData(x, y, z, defaultColor.r, defaultColor.g, defaultColor.b, defaultColor.a, 0, 0);
+	}
+
+	public void putData(float x, float y, float r, float g, float b, float a) {
+		putData(x, y, 0, r, g, b, a, 0, 0);
+	}
+
+	public void putData(float x, float y, float z, float r, float g, float b, float a) {
+		putData(x, y, z, r, g, b, a, 0, 0);
+	}
+
+	public void putData(float x, float y, Color4f color) {
+		putData(x, y, 0, color.r, color.g, color.b, color.a, 0, 0);
+	}
+
+	public void putData(float x, float y, float z, Color4f color) {
+		putData(x, y, z, color.r, color.g, color.b, color.a, 0, 0);
+	}
+
+	public void putData(float x, float y, Color4f color, float u, float v) {
+		putData(x, y, 0, color.r, color.g, color.b, color.a, u, v);
+	}
+
+	public void putData(float x, float y, float z, Color4f color, float u, float v) {
+		putData(x, y, z, color.r, color.g, color.b, color.a, u, v);
+	}
+
+	public void putData(float x, float y, float z, float r, float g, float b, float a, float u, float v) {
+		if (z != 0)
+			putData(new VertexData(x, y, z, r, g, b, a, u, v));
+		else if (z == 0)
+			putData(new VertexData(x, y, r, g, b, a, u, v));
+	}
+
+	public void putData(VertexData data) {
+		if (currentSize >= size - 1)
+			//restartBatch();
+
+		if (render2D) {
+			vertices.put(data.x).put(data.y);
+		}else if(!render2D){
+			vertices.put(data.x).put(data.y).put(data.z);
+		}
+		colorVertices.put(data.r).put(data.g).put(data.b).put(data.a);
+		textureVertices.put(data.u).put(data.v);
+		
+		currentSize++;
+	}
+
+	private void restartBatch() {
+		end();
+		begin();
+	}
+
+	public void dispose() {
 		glDeleteBuffers(vID);
 		glDeleteBuffers(cID);
 		glDeleteBuffers(tID);
+	}
+
+	private static class VertexData {
+		public float x, y, z, r, g, b, a, u, v;
+
+		public VertexData(float x, float y, float z, float r, float g, float b, float a, float u, float v) {
+			super();
+			this.x = x;
+			this.y = y;
+			this.z = z;
+			this.r = r;
+			this.g = g;
+			this.b = b;
+			this.a = a;
+			this.u = u;
+			this.v = v;
+		}
+
+		public VertexData(float x, float y, float r, float g, float b, float a, float u, float v) {
+			super();
+			this.x = x;
+			this.y = y;
+			this.z = 0;
+			this.r = r;
+			this.g = g;
+			this.b = b;
+			this.a = a;
+			this.u = u;
+			this.v = v;
+		}
+
 	}
 }

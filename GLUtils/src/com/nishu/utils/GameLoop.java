@@ -1,63 +1,68 @@
 package com.nishu.utils;
 
 public class GameLoop {
-	
+
 	private Screen currentScreen;
-	
+
 	private double frameCap = 60.0;
 	private boolean running = false, debugMode = false;;
-	
-	public void setScreen(Screen screen){
-		if(currentScreen != null) currentScreen.dispose();
+
+	public void setScreen(Screen screen) {
+		if (currentScreen != null)
+			currentScreen.dispose();
 		currentScreen = screen;
 		currentScreen.initGL();
 		currentScreen.init();
 	}
-	
-	public void start(int frameCap){
-		if(running) return;
+
+	public void start(int frameCap) {
+		if (running)
+			return;
 		running = true;
 		this.frameCap = frameCap;
 		run();
 	}
 
-	private void run(){
+	private void run() {
 		int frames = 0;
-		int frameCounter = 0; 
-		
+		int frameCounter = 0;
+
 		final double frameTime = 1.0 / frameCap;
-		
+
 		long lastTime = Time.getTime();
 		double unprocessed = 0;
-		
-		while(running){
+
+		while (running && !Window.isWindowCloseRequested()) {
 			boolean render = false;
 			long startTime = Time.getTime();
 			long passedTime = startTime - lastTime;
 			lastTime = startTime;
-			
+
 			unprocessed += passedTime / (double) Time.SECOND;
 			frameCounter += passedTime;
-			
-			while(unprocessed > frameTime){
+
+			while (unprocessed > frameTime) {
 				render = true;
 				unprocessed -= frameTime;
-				
-				if(Window.isWindowCloseRequested()) stop();
-				
+
+				if (Window.isWindowCloseRequested())
+					stop();
+
 				Time.setDelta(frameTime);
 				update();
-				
-				if(frameCounter >= Time.SECOND){
-					if(debugMode) System.out.println("FPS: " + frames);
+
+				if (frameCounter >= Time.SECOND) {
+					if (debugMode) {
+						System.out.println("FPS: " + frames);
+					}
 					frames = 0;
 					frameCounter = 0;
 				}
 			}
-			if(render){
+			if (render) {
 				render();
 				frames++;
-			}else{
+			} else {
 				try {
 					Thread.sleep(1);
 				} catch (InterruptedException e) {
@@ -68,18 +73,21 @@ public class GameLoop {
 		stop();
 	}
 
-	private void update(){
+	private void update() {
+		Window.update();
 		currentScreen.update();
 	}
-	
-	private void render(){
+
+	private void render() {
 		currentScreen.render();
 	}
-	
-	public void stop(){
-		if(!running) return;
+
+	public void stop() {
+		if (!running)
+			return;
 		running = false;
 		currentScreen.dispose();
+		Window.dispose();
 	}
 
 	public double getFrameCap() {
@@ -97,5 +105,9 @@ public class GameLoop {
 	public void setDebugMode(boolean debugMode) {
 		this.debugMode = debugMode;
 	}
-	
+
+	public boolean isRunning() {
+		return running;
+	}
+
 }

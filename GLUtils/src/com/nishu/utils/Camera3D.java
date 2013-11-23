@@ -86,8 +86,8 @@ public class Camera3D implements Camera {
 		private float x = 0, y = 0, z = 0;
 		private float pitch = 0, yaw = 0, roll = 0;
 		private float aspectRatio = 1;
-		private float zNear = 100;
-		private float zFar = 0.3f;
+		private float zNear = 0.001f;
+		private float zFar = 100f;
 		private float fov = 90;
 
 		public CameraBuilder() {
