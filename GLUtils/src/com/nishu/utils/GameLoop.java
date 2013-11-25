@@ -6,6 +6,8 @@ public class GameLoop {
 
 	private double frameCap = 60.0;
 	private boolean running = false, debugMode = false;;
+	private int frames = 0;
+	private static int currentFPS;
 
 	public void setScreen(Screen screen) {
 		if (currentScreen != null)
@@ -24,7 +26,7 @@ public class GameLoop {
 	}
 
 	private void run() {
-		int frames = 0;
+		frames = 0;
 		int frameCounter = 0;
 
 		final double frameTime = 1.0 / frameCap;
@@ -55,6 +57,7 @@ public class GameLoop {
 					if (debugMode) {
 						System.out.println("FPS: " + frames);
 					}
+					currentFPS = frames;
 					frames = 0;
 					frameCounter = 0;
 				}
@@ -110,4 +113,7 @@ public class GameLoop {
 		return running;
 	}
 
+	public static int getFPS(){
+		return currentFPS;
+	}
 }
